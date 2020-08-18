@@ -12,6 +12,7 @@ import {
   Pressable,
   Button,
   TouchableOpacity,
+  FlatList,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -20,22 +21,24 @@ import {
 import Header from '../components/Header';
 import Color from '../assets/font-color/Color';
 import {Searchbar, Avatar} from 'react-native-paper';
-export default function Screen1() {
-  const [searchQuery, setSearchQuery] = useState({
-    id: 1,
-    first_name: 'Aubrie',
-    last_name: 'Handscomb',
-    email: 'ahandscomb0@webeden.co.uk',
-    gender: 'Male',
-    phone_number: '(719) 7076846',
-  });
-  const gender = 'Male';
+import {NavigationContainer} from '@react-navigation/native';
+//redux
+import {connect} from 'react-redux';
+import {getUsers} from '../actions/user';
+import PropTypes from 'prop-types';
+
+const Screen1 = ({navigation, user: {users, loading}}) => {
+  const [searchQuery, setSearchQuery] = useState('');
   const onChangeSearch = (query) => setSearchQuery(query);
-  const [isLoading, setLoading] = useState(false);
-  //   const handleTouch = () => {
-  //     console.log('touch');
-  //     // alert('You tapped the 1 button!');
-  //   };
+  const handleTouch = (item) => {
+    console.log('touch');
+    navigation.push('Screen2', {
+      name: item.first_name + ' ' + item.last_name,
+      address: 'address',
+      email: item.email,
+      phone: item.phone,
+    });
+  };
   return (
     <SafeAreaView style={styles.container}>
       <Header />
@@ -47,8 +50,7 @@ export default function Screen1() {
           iconColor={Color.primary}
         />
       </View>
-      <View></View>
-      <View style={styles.cardContainer}>
+      {/* <TouchableOpacity style={styles.cardContainer} onPress={handleTouch}>
         <View
           style={{
             alignItems: 'center',
@@ -72,10 +74,84 @@ export default function Screen1() {
           <Text style={styles.userInfo}>Phone: 9874561578</Text>
           <Text style={styles.userInfo}>Email:ashishprasad2163@gmail.com</Text>
         </View>
+      </TouchableOpacity> */}
+
+      <View style={{flex: 1}}>
+        {loading == true ? (
+          <View>
+            <Text
+              style={{
+                textAlign: 'center',
+                color: Color.primary,
+                marginVertical: wp(40),
+                fontWeight: 'bold',
+              }}>
+              Loading
+            </Text>
+          </View>
+        ) : loading == false ? (
+          <FlatList
+            data={users}
+            keyExtractor={(item) => item.id}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={styles.cardContainer}
+                onPress={() => {
+                  navigation.push('Screen2', {
+                    name: item.first_name + ' ' + item.last_name,
+                    address: 'address',
+                    email: item.email,
+                    phone: item.phone_number,
+                    gender: item.gender,
+                  });
+                }}>
+                <View
+                  style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: wp(2),
+                  }}>
+                  {item.gender == 'Female' ? (
+                    <Avatar.Image
+                      size={60}
+                      source={require('../assets/images/female.png')}
+                    />
+                  ) : (
+                    <Avatar.Image
+                      size={60}
+                      source={require('../assets/images/male.png')}
+                    />
+                  )}
+                </View>
+                <View style={{justifyContent: 'center', margin: wp(2)}}>
+                  <Text style={styles.userName}>
+                    {item.first_name + ' ' + item.last_name}
+                  </Text>
+                  <Text style={styles.userInfo}>
+                    Phone: {item.phone_number}
+                  </Text>
+                  <Text style={styles.userInfo}>Email: {item.email}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
+        ) : (
+          <View>
+            <Text
+              style={{
+                textAlign: 'center',
+                color: Color.primary,
+                marginVertical: wp(40),
+                fontWeight: 'bold',
+              }}>
+              Something went wrong
+            </Text>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -107,3 +183,10 @@ const styles = StyleSheet.create({
     fontWeight: 'normal',
   },
 });
+
+Screen1.propTypes = {
+  getUsers: PropTypes.func.isRequired,
+};
+const mapStateToProps = (state) => ({user: state.user});
+
+export default connect(mapStateToProps, {getUsers})(Screen1);
