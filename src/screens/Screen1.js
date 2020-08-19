@@ -26,7 +26,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {connect} from 'react-redux';
 import {getUsers} from '../actions/user';
 import PropTypes from 'prop-types';
-
+console.disableYellowBox = true;
 const Screen1 = ({navigation, user: {users, loading}}) => {
   // const [searchQuery, setSearchQuery] = useState('');
   const [allUsers, setAllUsers] = useState(users);
