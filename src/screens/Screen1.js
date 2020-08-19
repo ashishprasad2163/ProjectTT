@@ -56,7 +56,7 @@ const Screen1 = ({navigation, user: {users, loading}}) => {
   };
   useEffect(() => {
     updateState();
-  }, []);
+  }, [users]);
   return (
     <SafeAreaView style={styles.container}>
       <Header />
