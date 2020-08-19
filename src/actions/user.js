@@ -10,7 +10,7 @@ export const getUsers = () => async (dispatch) => {
       type: GET_USERS,
       payload: res.data,
     });
-    console.log(res);
+    console.log(res.data);
   } catch (err) {
     dispatch({
       type: GET_USERS_FAILED,

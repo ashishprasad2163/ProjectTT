@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -28,10 +28,21 @@ import {getUsers} from '../actions/user';
 import PropTypes from 'prop-types';
 
 const Screen1 = ({navigation, user: {users, loading}}) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const onChangeSearch = (query) => setSearchQuery(query);
+  // const [searchQuery, setSearchQuery] = useState('');
+  const [allUsers, setAllUsers] = useState(users);
+  const [usersFiltered, setUsersFiltered] = useState(users);
+  // const onChangeSearch = (query) => setSearchQuery(query);
+
+  const searchUser = async (textToSearch) => {
+    await setUsersFiltered(
+      allUsers.filter(
+        (i) =>
+          i.first_name.includes(textToSearch) +
+          i.last_name.includes(textToSearch),
+      ),
+    );
+  };
   const handleTouch = (item) => {
-    console.log('touch');
     navigation.push('Screen2', {
       name: item.first_name + ' ' + item.last_name,
       address: 'address',
@@ -39,42 +50,26 @@ const Screen1 = ({navigation, user: {users, loading}}) => {
       phone: item.phone,
     });
   };
+  const updateState = async () => {
+    await setAllUsers(users);
+    await setUsersFiltered(users);
+  };
+  useEffect(() => {
+    updateState();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <Header />
       <View style={styles.searchBar}>
         <Searchbar
           placeholder="Search"
-          onChangeText={onChangeSearch}
-          value={searchQuery}
+          onChangeText={(text) => {
+            searchUser(text);
+          }}
+          value={usersFiltered}
           iconColor={Color.primary}
         />
       </View>
-      {/* <TouchableOpacity style={styles.cardContainer} onPress={handleTouch}>
-        <View
-          style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: wp(2),
-          }}>
-          {gender == 'Female' ? (
-            <Avatar.Image
-              size={60}
-              source={require('../assets/images/female.png')}
-            />
-          ) : (
-            <Avatar.Image
-              size={60}
-              source={require('../assets/images/male.png')}
-            />
-          )}
-        </View>
-        <View style={{justifyContent: 'center', margin: wp(2)}}>
-          <Text style={styles.userName}>John Doe</Text>
-          <Text style={styles.userInfo}>Phone: 9874561578</Text>
-          <Text style={styles.userInfo}>Email:ashishprasad2163@gmail.com</Text>
-        </View>
-      </TouchableOpacity> */}
 
       <View style={{flex: 1}}>
         {loading == true ? (
@@ -91,8 +86,8 @@ const Screen1 = ({navigation, user: {users, loading}}) => {
           </View>
         ) : loading == false ? (
           <FlatList
-            data={users}
-            keyExtractor={(item) => item.id}
+            data={usersFiltered}
+            keyExtractor={(item) => item.id.toString()}
             renderItem={({item}) => (
               <TouchableOpacity
                 style={styles.cardContainer}
